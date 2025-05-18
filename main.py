@@ -11,6 +11,9 @@ from handlers.broadcast import register_broadcast
 from handlers.info import register_info
 from handlers.users import register_users
 
+async def drop_webhook():
+    await bot.delete_webhook(drop_pending_updates=True)
+
 # === Ensure there is an asyncio event loop ===
 # Create a new event loop and set it as the current one.
 # This prevents "no current event loop" errors on start_polling.
@@ -28,6 +31,7 @@ def register_all_handlers():
     register_users(dp)
 
 if __name__ == "__main__":
+    asyncio.run(drop_webhook())
     # Log that bot is starting
     logger.info("Bot started")
     # Register all message and callback handlers
