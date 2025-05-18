@@ -1,0 +1,16 @@
+# Virtual environment
+venv/
+
+# Bot logs
+bot.log
+bot.log.*
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Google credentials
+credentials.json
