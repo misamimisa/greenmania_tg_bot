@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from aiogram import executor
-from config import dp, logger
+from config import bot, dp, logger
 from handlers.base import register_base
 from handlers.booking import register_booking
 from handlers.question import register_question
@@ -11,9 +11,12 @@ from handlers.broadcast import register_broadcast
 from handlers.info import register_info
 from handlers.users import register_users
 
+# === Delete any existing webhook before polling ===
 async def drop_webhook():
+    # Telegram allows only one getUpdates mechanism at a time.
+    # Remove webhook to ensure polling works.
     await bot.delete_webhook(drop_pending_updates=True)
-
+    
 # === Ensure there is an asyncio event loop ===
 # Create a new event loop and set it as the current one.
 # This prevents "no current event loop" errors on start_polling.
@@ -31,6 +34,7 @@ def register_all_handlers():
     register_users(dp)
 
 if __name__ == "__main__":
+    # Drop webhook to avoid ConflictError
     asyncio.run(drop_webhook())
     # Log that bot is starting
     logger.info("Bot started")
