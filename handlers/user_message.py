@@ -67,8 +67,14 @@ async def notify_admins(user, text, label="💬 Сообщение"):
 
 # === Register handler only for non-admin users ===
 def register_user_message(dp: Dispatcher):
+    from state import users_waiting_for_service, user_waiting_for_question
+    # Fallback handlers: only for non-admins NOT in any “waiting” state
     dp.register_message_handler(
         handle_user_message,
-        lambda m: m.from_user.id not in ADMIN_IDS
+        lambda m: (
+            m.from_user.id not in ADMIN_IDS
+            and m.from_user.id not in users_waiting_for_service
+            and m.from_user.id not in user_waiting_for_question
+        )
     )
 
