@@ -38,18 +38,14 @@ if __name__ == "__main__":
     loop.run_until_complete(drop_webhook())
     logger.info("Bot started; webhook cleared")
 
-    # 5) Log startup
-    logger.info("Bot started")
-
-    # 6) Register all message & callback handlers
+    # 5) Register all message & callback handlers
     register_all_handlers()
 
-    # 7) Enter polling loop, retrying on conflict
+    # 6) Enter polling loop, retrying on conflict
     while True:
         try:
             executor.start_polling(dp, skip_updates=True)
-            # if start_polling ever returns normally, break out
-            break
+            break # if start_polling ever returns normally, break out
         except TerminatedByOtherGetUpdates:
             # Telegram reports another getUpdates in progress
             logger.warning("Conflict detected: another getUpdates client, resetting webhook and retrying…")
