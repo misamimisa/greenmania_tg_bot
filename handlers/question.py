@@ -56,7 +56,7 @@ async def handle_question_input(message: types.Message):
 
     # confirm to user
     await message.answer(
-        "Вопрос получен. Мы скоро ответим 💬",
+        "Ващ вопрос получен, спасибо, мы скоро ответим 💬",
         reply_markup=get_restart_keyboard()
     )
 
