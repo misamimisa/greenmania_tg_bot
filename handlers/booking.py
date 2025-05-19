@@ -5,6 +5,7 @@ from services.sheets import append_to_sheet
 from state import users_waiting_for_service
 from keyboards import get_restart_keyboard
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.exceptions import ChatNotFound, TelegramAPIError
 
 # === 1) Handle "📝 Записаться" button press ===
 async def handle_booking_click(message: types.Message):
@@ -36,11 +37,19 @@ async def handle_service_input(message: types.Message):
         InlineKeyboardButton("🔁 Ответить клиенту", callback_data=f"reply:{user.id}")
     )
     for admin_id in ADMIN_IDS:
-        await bot.send_message(
-            admin_id,
-            f"📌 ЗАПИСЬ от {user.first_name} (@{user.username or 'нет username'}):\n{service_text}",
-            reply_markup=markup
-        )
+        try:
+            markup = InlineKeyboardMarkup().add(
+                InlineKeyboardButton("🔁 Ответить клиенту", callback_data=f"reply:{user.id}")
+            )
+            await bot.send_message(
+                admin_id,
+                f"📌 ЗАПИСЬ от {user.first_name} (@{user.username}):\n{service_text}",
+                reply_markup=markup
+            )
+        except ChatNotFound:
+            logger.warning(f"Admin {admin_id}: chat not found, skipping")
+        except TelegramAPIError as e:
+            logger.error(f"Admin {admin_id}: failed sending booking: {e}")
 
     # record the actual service in Google Sheets
     append_to_sheet(user, service_text, "запись")

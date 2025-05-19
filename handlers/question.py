@@ -5,6 +5,7 @@ from services.sheets import append_to_sheet
 from state import user_waiting_for_question
 from keyboards import get_restart_keyboard
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.exceptions import ChatNotFound, TelegramAPIError
 
 # === 1) Handle "❓ Задать вопрос" button press ===
 async def handle_question_click(message: types.Message):
@@ -36,11 +37,19 @@ async def handle_question_input(message: types.Message):
         InlineKeyboardButton("🔁 Ответить клиенту", callback_data=f"reply:{user.id}")
     )
     for admin_id in ADMIN_IDS:
-        await bot.send_message(
-            admin_id,
-            f"❓ ВОПРОС от {user.first_name} (@{user.username or 'нет username'}):\n{question_text}",
-            reply_markup=markup
-        )
+        try:
+            markup = InlineKeyboardMarkup().add(
+                InlineKeyboardButton("🔁 Ответить клиенту", callback_data=f"reply:{user.id}")
+            )
+            await bot.send_message(
+                admin_id,
+                f"❓ ВОПРОС от {user.first_name} (@{user.username}):\n{question_text}",
+                reply_markup=markup
+            )
+        except ChatNotFound:
+            logger.warning(f"Admin {admin_id}: chat not found, skipping")
+        except TelegramAPIError as e:
+            logger.error(f"Admin {admin_id}: failed sending question: {e}")
 
     # record the actual question in Google Sheets
     append_to_sheet(user, question_text, "вопрос")
