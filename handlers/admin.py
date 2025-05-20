@@ -1,4 +1,5 @@
 from aiogram import types
+from datetime import datetime
 from aiogram.dispatcher import Dispatcher
 from config import ADMIN_IDS, bot, logger
 from services.sheets import sheet
@@ -57,10 +58,14 @@ async def handle_admin_reply(msg: types.Message):
         for idx, row in enumerate(reversed(all_rows[1:]), 1):
             row_index = len(all_rows) - idx + 1
             if str(user_id) == row[0] and (len(row) < reply_col or not row[reply_col - 1]):
+                # write admin reply
                 sheet.update_cell(row_index, reply_col, msg.text)
+                # write timestamp in next column
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                sheet.update_cell(row_index, reply_col + 1, timestamp)
                 break
     except Exception as e:
-        await msg.reply(f"❌ Ошибка при отправке: {e}")
+        await msg.reply(f"❌ Ошибка при отправке или записи в таблицу: {e}")
 
 # === Register admin-related handlers ===
 def register_admin(dp: Dispatcher):
