@@ -1,7 +1,11 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo  # Use standard library for IANA timezones
 from config import sheet
 
 def append_to_sheet(user, text, status):
+    # Use Moscow timezone for timestamp
+    tz = ZoneInfo("Europe/Moscow")
+    now = datetime.now(moscow_tz).strftime("%Y-%m-%d %H:%M:%S")
     sheet.append_row([
         user.id,
         user.first_name or "",
