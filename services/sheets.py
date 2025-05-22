@@ -1,18 +1,18 @@
 from datetime import datetime
-from zoneinfo import ZoneInfo  # Use standard library for IANA timezones
+import pytz  # Reliable tz DB
 from config import sheet
 
 def append_to_sheet(user, text, status):
-    # Use Moscow timezone for timestamp
-    tz = ZoneInfo("Europe/Moscow")
-    now = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+    # Use pytz for Moscow timezone
+    moscow_tz = pytz.timezone("Europe/Moscow")
+    now = datetime.now(moscow_tz).strftime("%Y-%m-%d %H:%M:%S")
     sheet.append_row([
         user.id,
         user.first_name or "",
         user.username or "",
         user.language_code or "",
         text,
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        now,
         status
     ])
 
